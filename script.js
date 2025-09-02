@@ -179,7 +179,7 @@ function drawGameOver() {
 
 // Adding Start Button
 const startBtnImg = new Image();
-startBtnImg.src = "./assets/start-btn-pressed.png";
+startBtnImg.src = "./assets/start-btn.png";
 const startBtn = {
     x: gameCanvas.width / 2 - 64,
     y: gameCanvas.height / 2,
