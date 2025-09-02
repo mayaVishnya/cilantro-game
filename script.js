@@ -1,6 +1,9 @@
-const gameCanvas = document.getElementById("gameCanvas");
-const ctx = gameCanvas.getContext('2d');
+const gameCanvas = document.getElementById("game-canvas");
+const ctx = gameCanvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
+const bgImage = new Image();
+bgImage.src = "./assets/background.png"
+ctx.drawImage(bgImage, 0, 0, gameCanvas.width, gameCanvas.height);
 
 const playerImg = new Image();
 playerImg.src = "./assets/vali-sprite-right.png";
@@ -53,9 +56,10 @@ foodImg.src = "./assets/pizza.png"
 let foodItems = [];
 let score = 0;
 let gameOver = false;
+let firstStart = true;
 
 function spawnItem() {
-    const isCilantro = Math.random() < 0.15; // 20% chance for getting cilantro
+    const isCilantro = Math.random() < 0.15; // 15% chance for getting cilantro
     foodItems.push({
         x: Math.random() * (gameCanvas.width - 32),
         y: -32,
@@ -64,9 +68,25 @@ function spawnItem() {
         cilantro: isCilantro
     });
 }
-setInterval(spawnItem, 1000);
+
+let spawnInterval;
+
+function startSpawning() {
+  spawnInterval = setInterval(() => {
+    if (!gameOver) spawnItem();
+  }, 1000);
+}
+
+function triggerGameOver() {
+  gameOver = true;
+
+  // stop spawning completely
+  clearInterval(spawnInterval);
+}
 
 function updateFoodItems () {
+    if (gameOver) return;
+
     for(let i = 0; i < foodItems.length; i++) {
         let item = foodItems[i];
         item.y += item.speed;
@@ -78,7 +98,7 @@ function updateFoodItems () {
             item.y + item.size > player.y
         ) {
            if(item.cilantro) {
-            gameOver = true;
+            triggerGameOver();
            }
            else {
             score++;
@@ -108,22 +128,82 @@ function draw(){
         }
     }
 
-    ctx.fillStyle = "white";
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, 5, 30);
+    drawScore();
 
     if(gameOver) {
-        ctx.fillStyle = "red";
-        ctx.font = "40px Arial";
-        ctx.fillText("GAME OVER", 80, gameCanvas.height / 2);
+        drawGameOver();
+        drawStartBtn();
     }
 }
 
+function drawScore() {
+  ctx.save();
+  ctx.setTransform(1, 0, 0, 1, 0, 0);   // cancel any translate/scale/rotate
+  ctx.globalAlpha = 1;
+  ctx.font = "20px monospace";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#fff";
+  ctx.fillText(`Score: ${score}`, 8, 8);
+  ctx.restore();
+}
+
+function drawGameOver() {
+    const text = "GAME OVER! Vali ate cilantro :(";
+    const scoreText = "Your total core: " + score;
+    ctx.font = "20px pixelFont";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const x = gameCanvas.width / 2;
+    const y = gameCanvas.height / 5;
+
+    const textMetrics = ctx.measureText(text);
+    const padding = 10;
+
+    // Draw background rectangle
+    ctx.fillStyle = "black";
+    ctx.fillRect(
+        x - textMetrics.width / 2 - padding,
+        y - 40 / 2 - padding, // approximate height from font size
+        textMetrics.width + padding * 2,
+        40 + padding * 2
+    );
+
+    // Draw the text
+    ctx.fillStyle = "red"; // text color
+    ctx.fillText(text, x, y);
+    ctx.fillText(scoreText, x, gameCanvas.height / 3);
+}
+
+
+// Adding Start Button
+const startBtnImg = new Image();
+startBtnImg.src = "./assets/start-btn-pressed.png";
+const startBtn = {
+    x: gameCanvas.width / 2 - 64,
+    y: gameCanvas.height / 2,
+    width: 128,
+    height: 64
+}
+
+function drawStartBtn() {
+    ctx.drawImage(
+        startBtnImg,
+        startBtn.x, 
+        startBtn.y,
+        startBtn.width,
+        startBtn.height
+    )
+}
+
 function gameLoop() {
+    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
     if (!gameOver) {
         update();
         updateFoodItems();
     
+        drawScore();
         draw();
         requestAnimationFrame(gameLoop);
     } else {
@@ -132,5 +212,53 @@ function gameLoop() {
 }
 
 window.onload = function() {
+    draw();
+    drawStartBtn();
+}
+
+function restartGame() {
+    player.x = gameCanvas.width / 2 - player.size / 2;
+    player.y = gameCanvas.height - player.size - 10;
+    items = [];
+    score = 0;
+    gameOver = false;
+
+    startSpawning();
     gameLoop();
 }
+
+gameCanvas.addEventListener("click", (e) => {
+    const rect = gameCanvas.getBoundingClientRect();
+    const scaleX = gameCanvas.width / rect.width;   // account for CSS scaling
+    const scaleY = gameCanvas.height / rect.height;
+
+    const mouseX = (e.clientX - rect.left) * scaleX;
+    const mouseY = (e.clientY - rect.top) * scaleY;
+
+    if (
+        mouseX >= startBtn.x &&
+        mouseX <= startBtn.x + startBtn.width &&
+        mouseY >= startBtn.y &&
+        mouseY<= startBtn.y + startBtn.height
+    ) {
+        restartGame();
+    }
+    firstStart = false;
+})
+
+// starting the game on enter pressed
+document.addEventListener("keydown", (e) => {
+  if ((gameOver || firstStart) && (e.key === "Enter" || e.key === "Return")) {
+    restartGame();
+    firstStart = false;
+  }
+});
+
+// prevent food items from spawning in the inactive tab
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        clearInterval(spawnInterval);
+    } else {
+        startSpawning();
+    }
+})
