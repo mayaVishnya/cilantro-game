@@ -45,11 +45,7 @@ function update() {
 
 
 // Food Rendering logic
-const cilantroImg = new Image();
-cilantroImg.src = "./assets/cilantro.png"
-
-// const foodImg = new Image();
-// foodImg.src = "./assets/pizza.png"
+const foodImg = new Image();
 
 let foodItems = [];
 let score = 0;
@@ -60,7 +56,7 @@ function spawnItem() {
     const isCilantro = Math.random() < 0.15; // 15% chance for getting cilantro
     const isPizza = Math.random() < 0.45;
     const isBurger = Math.random() < 0.30;
-    const isCoke = Math.random() < 0.90;
+    const isCoke = Math.random() < 0.10;
 
     foodItems.push({
         x: Math.random() * (gameCanvas.width - 32),
@@ -109,7 +105,7 @@ function updateFoodItems () {
             triggerGameOver();
            }
            else if (item.coke) {
-            score *= 2;
+            score = score === 0 ? 5 : score * 2;
            }
            else {
             score++;
@@ -132,20 +128,17 @@ function draw(){
     ctx.drawImage(playerImg, player.x, player.y, player.size, player.size);
     drawScore();
     
-    let foodImg = new Image();
     for(let item of foodItems) {
         if(item.cilantro) {
-            ctx.drawImage(cilantroImg, item.x, item.y, item.size, item.size);
+            foodImg.src = "./assets/cilantro.png";
+        } else if (item.coke) {
+            foodImg.src = "./assets/coke.png";
+        } else if (item.burger) {
+            foodImg.src = "./assets/burger.png";
         } else {
-            if (item.isCoke) {
-                foodImg.src = "./assets/coke.png"
-            } else if (item.isBurger) {
-                foodImg.src = "./assets/burger.png"
-            } else {
-                foodImg.src = "./assets/pizza.png"
-            }
-            ctx.drawImage(foodImg, item.x, item.y, item.size, item.size);
+            foodImg.src = "./assets/pizza.png";
         }
+        ctx.drawImage(foodImg, item.x, item.y, item.size, item.size);
     }
 
     drawScore();
@@ -234,6 +227,7 @@ window.onload = function() {
 }
 
 function startGame() {
+    spawnInterval = null;
     player.x = gameCanvas.width / 2 - player.size / 2;
     player.y = 268;
     items = [];
