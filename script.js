@@ -13,7 +13,7 @@ const playerImg = new Image();
 playerImg.src = "./assets/vali-sprite-right.png";
 
 let player = {
-    x: 170,
+    x: 250,
     y: 315,
     size: 116,
     speed: 3
@@ -285,7 +285,7 @@ window.onload = function() {
 
 function startGame() {
     spawnInterval = null;
-    player.x = 170;
+    player.x = 250;
     player.y = 315;
     items = [];
     score = 0;
