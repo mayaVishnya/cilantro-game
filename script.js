@@ -1,3 +1,8 @@
+// Managing music and sounds
+const bgMusic = document.getElementById("bg-music");
+const collectSound = document.getElementById("collect-sound");
+const gameOverSound = document.getElementById("game-over-sound");
+
 const gameCanvas = document.getElementById("game-canvas");
 const ctx = gameCanvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
@@ -53,7 +58,7 @@ let gameOver = false;
 let firstStart = true;
 
 function spawnItem() {
-    const isCilantro = Math.random() < 0.25; // 25% chance for getting cilantro
+    const isCilantro = Math.random() < 0.30; // 30% chance for getting cilantro
     const isPizza = Math.random() < 0.45;
     const isBurger = Math.random() < 0.30;
     const isCoke = Math.random() < 0.10;
@@ -87,10 +92,13 @@ function startSpawning() {
 }
 
 function triggerGameOver() {
-  gameOver = true;
+    gameOver = true;
+    bgMusic.pause();
+    gameOverSound.currentTime = 0;
+    gameOverSound.play();
 
-  // stop spawning completely
-  clearInterval(spawnInterval);
+    // stop spawning completely
+    clearInterval(spawnInterval);
 }
 
 function updateFoodItems () {
@@ -108,15 +116,18 @@ function updateFoodItems () {
         ) {
            if(item.cilantro) {
             triggerGameOver();
-           }
-           else if (item.coke) {
-            score += 5;
-           }
-           else {
-            score++;
-           }
-            foodItems.splice(i, 1);
-            i--;
+           } else {
+                if (item.coke) {
+                    score += 5;
+                } else {
+                    score++;
+                }
+                foodItems.splice(i, 1);
+                i--;
+                collectSound.currentTime = 0;
+                collectSound.volume = 0.3;
+                collectSound.play();
+            }
         }
 
         if(item.y > gameCanvas.height) {
@@ -278,6 +289,10 @@ function startGame() {
     items = [];
     score = 0;
     gameOver = false;
+
+    bgMusic.currentTime = 0;
+    bgMusic.volume = 0.2;
+    bgMusic.play();
 
     startSpawning();
     gameLoop();
