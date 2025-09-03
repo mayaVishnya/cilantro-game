@@ -13,9 +13,9 @@ const playerImg = new Image();
 playerImg.src = "./assets/vali-sprite-right.png";
 
 let player = {
-    x: 200,
-    y: 268,
-    size: 80,
+    x: 170,
+    y: 315,
+    size: 116,
     speed: 3
 }
 
@@ -64,9 +64,9 @@ function spawnItem() {
     const isCoke = Math.random() < 0.10;
 
     foodItems.push({
-        x: Math.random() * (gameCanvas.width - 32),
-        y: -32,
-        size: 32,
+        x: Math.random() * (gameCanvas.width - 40),
+        y: -40,
+        size: 40,
         speed: 2 + Math.random() * 1.5,
         cilantro: isCilantro,
         pizza: isPizza,
@@ -93,6 +93,7 @@ function startSpawning() {
 
 function triggerGameOver() {
     gameOver = true;
+    foodItems = []
     bgMusic.pause();
     gameOverSound.currentTime = 0;
     gameOverSound.play();
@@ -122,12 +123,12 @@ function updateFoodItems () {
                 } else {
                     score++;
                 }
-                foodItems.splice(i, 1);
-                i--;
                 collectSound.currentTime = 0;
                 collectSound.volume = 0.3;
                 collectSound.play();
             }
+            foodItems.splice(i, 1);
+                i--;
         }
 
         if(item.y > gameCanvas.height) {
@@ -200,7 +201,7 @@ function drawGameOver() {
         x - textMetrics.width / 2 - padding,
         y - 40 / 2 - padding, // approximate height from font size
         textMetrics.width + padding * 2,
-        80 + padding * 2
+        80 + padding * 4
     );
 
     // Draw the text
@@ -235,9 +236,9 @@ birdImg.src = "./assets/bird-up.png";
 let showBird = false;
 
 const bird = {
-    x: -32,
+    x: -40,
     y: gameCanvas.height / 5,
-    size: 32,
+    size: 40,
     speed: 4
 }
 
@@ -259,7 +260,7 @@ function updateRandomBird() {
         }
     }
     else if (showBird && bird.x >= gameCanvas.width ) {
-        bird.x = -32;
+        bird.x = -40;
         showBird = false;
     }
 }
@@ -284,8 +285,8 @@ window.onload = function() {
 
 function startGame() {
     spawnInterval = null;
-    player.x = gameCanvas.width / 2 - player.size / 2;
-    player.y = 268;
+    player.x = 170;
+    player.y = 315;
     items = [];
     score = 0;
     gameOver = false;
