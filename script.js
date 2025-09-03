@@ -53,7 +53,7 @@ let gameOver = false;
 let firstStart = true;
 
 function spawnItem() {
-    const isCilantro = Math.random() < 0.15; // 15% chance for getting cilantro
+    const isCilantro = Math.random() < 0.25; // 25% chance for getting cilantro
     const isPizza = Math.random() < 0.45;
     const isBurger = Math.random() < 0.30;
     const isCoke = Math.random() < 0.10;
@@ -110,7 +110,7 @@ function updateFoodItems () {
             triggerGameOver();
            }
            else if (item.coke) {
-            score = score === 0 ? 5 : score * 2;
+            score += 5;
            }
            else {
             score++;
