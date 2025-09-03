@@ -71,13 +71,18 @@ function spawnItem() {
 }
 
 let spawnInterval = null;
+let birdInterval = null;
 
 function startSpawning() {
-    console.log("My interval variable: ", spawnInterval)
     if (spawnInterval === null) {
         spawnInterval = setInterval(() => {
           if (!gameOver) spawnItem();
-        }, 1000);
+        }, 1500);
+    }
+    if (birdInterval === null) {
+        birdInterval = setInterval(() => {
+            spawnBird();
+        }, 10000);
     }
 }
 
@@ -128,6 +133,10 @@ function draw(){
     ctx.drawImage(playerImg, player.x, player.y, player.size, player.size);
     drawScore();
     
+    if(showBird) {
+        drawRandomBird();
+    }
+
     for(let item of foodItems) {
         if(item.cilantro) {
             foodImg.src = "./assets/cilantro.png";
@@ -163,7 +172,7 @@ function drawScore() {
 
 function drawGameOver() {
     const text = "GAME OVER! Vali ate cilantro :(";
-    const scoreText = "Your total core: " + score;
+    const scoreText = "Your total score: " + score;
     ctx.font = "20px pixelFont";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -209,9 +218,45 @@ function drawStartBtn() {
     )
 }
 
+// add a random bird in the background :)
+const birdImg = new Image();
+birdImg.src = "./assets/bird-up.png";
+let showBird = false;
+
+const bird = {
+    x: -32,
+    y: gameCanvas.height / 5,
+    size: 32,
+    speed: 4
+}
+
+function spawnBird() {
+    showBird = true;
+}
+
+function drawRandomBird() {
+    ctx.drawImage(birdImg, bird.x, bird.y, bird.size, bird.size);
+}
+
+function updateRandomBird() {
+    if(showBird && bird.x < gameCanvas.width) {
+        bird.x += bird.speed;
+        if(bird.x % 16 === 0 && birdImg.src.includes("up")) {
+            birdImg.src = "./assets/bird-down.png";
+        } else if (bird.x % 16 === 0) {
+            birdImg.src = "./assets/bird-up.png";
+        }
+    }
+    else if (showBird && bird.x >= gameCanvas.width ) {
+        bird.x = -32;
+        showBird = false;
+    }
+}
+
 function gameLoop() {
     if (!gameOver) {
         update();
+        updateRandomBird();
         updateFoodItems();
     
         draw();
