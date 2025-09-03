@@ -28,7 +28,6 @@ document.addEventListener("keyup", (e) => {
 function update() {
     if(keys["ArrowLeft"]) {
         player.x -= player.speed;
-        console.log(playerImg.src)
         if(playerImg.src.includes("vali-sprite-right.png")) {
             playerImg.src = "./assets/vali-sprite-left.png"
         }
@@ -49,8 +48,8 @@ function update() {
 const cilantroImg = new Image();
 cilantroImg.src = "./assets/cilantro.png"
 
-const foodImg = new Image();
-foodImg.src = "./assets/pizza.png"
+// const foodImg = new Image();
+// foodImg.src = "./assets/pizza.png"
 
 let foodItems = [];
 let score = 0;
@@ -59,21 +58,31 @@ let firstStart = true;
 
 function spawnItem() {
     const isCilantro = Math.random() < 0.15; // 15% chance for getting cilantro
+    const isPizza = Math.random() < 0.45;
+    const isBurger = Math.random() < 0.30;
+    const isCoke = Math.random() < 0.90;
+
     foodItems.push({
         x: Math.random() * (gameCanvas.width - 32),
         y: -32,
         size: 32,
         speed: 2 + Math.random() * 1.5,
-        cilantro: isCilantro
+        cilantro: isCilantro,
+        pizza: isPizza,
+        burger: isBurger,
+        coke: isCoke
     });
 }
 
-let spawnInterval;
+let spawnInterval = null;
 
 function startSpawning() {
-  spawnInterval = setInterval(() => {
-    if (!gameOver) spawnItem();
-  }, 1000);
+    console.log("My interval variable: ", spawnInterval)
+    if (spawnInterval === null) {
+        spawnInterval = setInterval(() => {
+          if (!gameOver) spawnItem();
+        }, 1000);
+    }
 }
 
 function triggerGameOver() {
@@ -99,6 +108,9 @@ function updateFoodItems () {
            if(item.cilantro) {
             triggerGameOver();
            }
+           else if (item.coke) {
+            score *= 2;
+           }
            else {
             score++;
            }
@@ -119,12 +131,19 @@ function draw(){
     ctx.drawImage(bgImage, 0, 0, gameCanvas.width, gameCanvas.height);
     ctx.drawImage(playerImg, player.x, player.y, player.size, player.size);
     drawScore();
-
+    
+    let foodImg = new Image();
     for(let item of foodItems) {
         if(item.cilantro) {
             ctx.drawImage(cilantroImg, item.x, item.y, item.size, item.size);
-        }
-        else {
+        } else {
+            if (item.isCoke) {
+                foodImg.src = "./assets/coke.png"
+            } else if (item.isBurger) {
+                foodImg.src = "./assets/burger.png"
+            } else {
+                foodImg.src = "./assets/pizza.png"
+            }
             ctx.drawImage(foodImg, item.x, item.y, item.size, item.size);
         }
     }
@@ -177,7 +196,6 @@ function drawGameOver() {
     ctx.fillText(scoreText, x, gameCanvas.height / 3);
 }
 
-
 // Adding Start Button
 const startBtnImg = new Image();
 startBtnImg.src = "./assets/start-btn.png";
@@ -215,7 +233,7 @@ window.onload = function() {
     drawStartBtn();
 }
 
-function restartGame() {
+function startGame() {
     player.x = gameCanvas.width / 2 - player.size / 2;
     player.y = 268;
     items = [];
@@ -240,7 +258,7 @@ gameCanvas.addEventListener("click", (e) => {
         mouseY >= startBtn.y &&
         mouseY<= startBtn.y + startBtn.height
     ) {
-        restartGame();
+        startGame();
     }
     firstStart = false;
 })
@@ -248,7 +266,7 @@ gameCanvas.addEventListener("click", (e) => {
 // starting the game on enter pressed
 document.addEventListener("keydown", (e) => {
   if ((gameOver || firstStart) && (e.key === "Enter" || e.key === "Return")) {
-    restartGame();
+    startGame();
     firstStart = false;
   }
 });
