@@ -3,14 +3,13 @@ const ctx = gameCanvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 const bgImage = new Image();
 bgImage.src = "./assets/background.png"
-ctx.drawImage(bgImage, 0, 0, gameCanvas.width, gameCanvas.height);
 
 const playerImg = new Image();
 playerImg.src = "./assets/vali-sprite-right.png";
 
 let player = {
     x: 200,
-    y: 318,
+    y: 268,
     size: 80,
     speed: 3
 }
@@ -117,7 +116,9 @@ function updateFoodItems () {
 // Rendering main game
 function draw(){
     ctx.clearRect(0,0, gameCanvas.width, gameCanvas.height);
+    ctx.drawImage(bgImage, 0, 0, gameCanvas.width, gameCanvas.height);
     ctx.drawImage(playerImg, player.x, player.y, player.size, player.size);
+    drawScore();
 
     for(let item of foodItems) {
         if(item.cilantro) {
@@ -143,7 +144,7 @@ function drawScore() {
   ctx.font = "20px monospace";
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = "#000";
   ctx.fillText(`Score: ${score}`, 8, 8);
   ctx.restore();
 }
@@ -162,16 +163,16 @@ function drawGameOver() {
     const padding = 10;
 
     // Draw background rectangle
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "white";
     ctx.fillRect(
         x - textMetrics.width / 2 - padding,
         y - 40 / 2 - padding, // approximate height from font size
         textMetrics.width + padding * 2,
-        40 + padding * 2
+        80 + padding * 2
     );
 
     // Draw the text
-    ctx.fillStyle = "red"; // text color
+    ctx.fillStyle = "black"; // text color
     ctx.fillText(text, x, y);
     ctx.fillText(scoreText, x, gameCanvas.height / 3);
 }
@@ -198,12 +199,10 @@ function drawStartBtn() {
 }
 
 function gameLoop() {
-    ctx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
     if (!gameOver) {
         update();
         updateFoodItems();
     
-        drawScore();
         draw();
         requestAnimationFrame(gameLoop);
     } else {
@@ -218,7 +217,7 @@ window.onload = function() {
 
 function restartGame() {
     player.x = gameCanvas.width / 2 - player.size / 2;
-    player.y = gameCanvas.height - player.size - 10;
+    player.y = 268;
     items = [];
     score = 0;
     gameOver = false;
