@@ -3,11 +3,31 @@ const bgMusic = document.getElementById("bg-music");
 const collectSound = document.getElementById("collect-sound");
 const gameOverSound = document.getElementById("game-over-sound");
 
+const GAME_WIDTH = 400;
+const GAME_HEIGHT = 250;
+
 const gameCanvas = document.getElementById("game-canvas");
 const ctx = gameCanvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
 const bgImage = new Image();
 bgImage.src = "./assets/background.png"
+
+function resizeCanvas() {
+    // target size = 2/3 of window
+    const targetWidth = window.innerWidth * (4 / 5);
+    const targetHeight = window.innerHeight * (4 / 5);
+
+    const scale = Math.floor(Math.min(
+        targetWidth / GAME_WIDTH,
+        targetHeight / GAME_HEIGHT
+    ));
+
+    gameCanvas.style.width = (GAME_WIDTH * scale) + "px";
+    gameCanvas.style.height = (GAME_HEIGHT * scale) + "px";
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 const playerImg = new Image();
 playerImg.src = "./assets/vali-sprite-right.png";
