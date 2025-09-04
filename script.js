@@ -13,14 +13,14 @@ const bgImage = new Image();
 bgImage.src = "./assets/background.png"
 
 function resizeCanvas() {
-    // target size = 2/3 of window
+    // target size = 4/5 of window
     const targetWidth = window.innerWidth * (4 / 5);
     const targetHeight = window.innerHeight * (4 / 5);
 
-    const scale = Math.floor(Math.min(
+    const scale = Math.min(
         targetWidth / GAME_WIDTH,
         targetHeight / GAME_HEIGHT
-    ));
+    );
 
     gameCanvas.style.width = (GAME_WIDTH * scale) + "px";
     gameCanvas.style.height = (GAME_HEIGHT * scale) + "px";
