@@ -15,6 +15,7 @@ bgImage.src = "./assets/background.png"
 let gameOver = false;
 let firstStart = true;
 let score = 0;
+let gameLoopRunning = false;
 
 function resizeCanvas() {
     // target size = 2/3 of window
@@ -100,12 +101,12 @@ let spawnInterval = null;
 let birdInterval = null;
 
 function startSpawning() {
-    if (spawnInterval === null) {
+    if (!spawnInterval) {
         spawnInterval = setInterval(() => {
           if (!gameOver) spawnItem();
         }, 1500);
     }
-    if (birdInterval === null) {
+    if (!birdInterval) {
         birdInterval = setInterval(() => {
             spawnBird();
         }, 10000);
@@ -183,9 +184,7 @@ function draw(){
         ctx.drawImage(foodImg, item.x, item.y, item.size, item.size);
     }
 
-    drawScore();
-
-    if(gameOver) {
+    if(gameOver && !firstStart) {
         drawGameOver();
         drawStartBtn();
     } else if (firstStart) {
@@ -301,7 +300,7 @@ gameCanvas.addEventListener("click", (e) => {
         mouseX >= startBtn.x &&
         mouseX <= startBtn.x + startBtn.width &&
         mouseY >= startBtn.y &&
-        mouseY<= startBtn.y + startBtn.height
+        mouseY<= startBtn.y + startBtn.height 
     ) {
         startGame();
         firstStart = false;
@@ -321,11 +320,14 @@ document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
         clearInterval(spawnInterval);
         clearInterval(birdInterval);
+        spawnInterval = null;
+        birdInterval = null;
         foodItems = [];
 
         bgMusic.pause();
     } else {
         firstStart = true;
+        gameOver = true;
     }
 })
 
@@ -339,11 +341,17 @@ function gameLoop() {
         requestAnimationFrame(gameLoop);
     } else {
         draw();
+        gameLoopRunning = false;
     }
 }
 
 function startGame() {
+    if(gameLoopRunning) return;
+
+    clearInterval(spawnInterval);
+    clearInterval(birdInterval);
     spawnInterval = null;
+    birdInterval = null;
     player.x = 250;
     player.y = 315;
     items = [];
@@ -355,6 +363,7 @@ function startGame() {
     bgMusic.play();
 
     startSpawning();
+    gameLoopRunning = true;
     gameLoop();
 }
 
