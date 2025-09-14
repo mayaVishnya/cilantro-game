@@ -5,8 +5,6 @@ Features:
 
 - Custom-made pixel art assets
 
-- Player movement with arrow keys
-
-- Randomly falling items
+- Custom backend for the top scores using Node.js/Express/SQLite
 
 - Score tracking & game-over screen
