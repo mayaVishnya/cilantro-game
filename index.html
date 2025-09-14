@@ -9,10 +9,18 @@
     </head>
     <body>
         <h1>Dodge the Cilantro!</h1>
+
         <canvas id="game-canvas" width="800" height="500"></canvas>
+        
+        <div id="scoreboard">
+            <h2>Best Scores</h2>
+            <ul id="scoreboard-list"></ul>
+        </div>
+
         <audio id="bg-music" src="./sounds/bg-loop.mp3" loop></audio>
         <audio id="collect-sound" src="./sounds/collect.ogg"></audio>
         <audio id="game-over-sound" src="./sounds/game-over.wav"></audio>
+
         <script src="./script.js"></script>
     </body>
 </html>

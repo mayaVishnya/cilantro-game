@@ -12,6 +12,9 @@ ctx.imageSmoothingEnabled = false;
 const bgImage = new Image();
 bgImage.src = "./assets/background.png"
 
+const scoreBoardList = document.getElementById("scoreboard-list");
+const scoreboard = document.getElementById("scoreboard");
+
 let gameOver = false;
 let firstStart = true;
 let score = 0;
@@ -22,13 +25,23 @@ function resizeCanvas() {
     const targetWidth = window.innerWidth * (2 / 3);
     const targetHeight = window.innerHeight * (2 / 3);
 
-    const scale = Math.min(
+    let scale = Math.min(
         targetWidth / GAME_WIDTH,
         targetHeight / GAME_HEIGHT
     );
 
     gameCanvas.style.width = (GAME_WIDTH * scale) + "px";
     gameCanvas.style.height = (GAME_HEIGHT * scale) + "px";
+
+    if (window.innerWidth < 1080) {
+        scoreboard.style.display = "none";
+    } else {
+        scoreboard.style.display = "flex";
+        const scoresTarget = window.innerWidth * (1 / 8);
+        scale = scoresTarget / GAME_WIDTH;
+        scoreBoardList.style.width = (GAME_WIDTH * scale) - 10 + "px";
+        scoreboard.style.right = window.innerWidth * (1 / 30) + "px";
+    }
 }
 
 window.addEventListener("resize", resizeCanvas);
@@ -120,6 +133,8 @@ function triggerGameOver() {
     gameOverSound.currentTime = 0;
     gameOverSound.play();
 
+    sendScore(score);
+
     // stop spawning completely
     clearInterval(spawnInterval);
 }
@@ -207,7 +222,7 @@ function drawScore() {
 function drawGameOver() {
     const text = "GAME OVER! Vali ate cilantro :(";
     const scoreText = "Your total score: " + score;
-    ctx.font = "20px pixelFont";
+    ctx.font = "13px 'Press Start 2P'";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
@@ -322,6 +337,7 @@ document.addEventListener("visibilitychange", () => {
         clearInterval(birdInterval);
         spawnInterval = null;
         birdInterval = null;
+
         foodItems = [];
 
         bgMusic.pause();
@@ -330,6 +346,38 @@ document.addEventListener("visibilitychange", () => {
         gameOver = true;
     }
 })
+
+// sending achived score to the backend
+function sendScore(score) {
+    const params = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ score })
+    }
+    fetch("http://localhost:3000/score", params)
+        .then(res => res.json())
+        .then(data => {
+            console.log("Score saved: ", data);
+            fetchTopScores();
+        })
+        .catch(err => console.error("Error occured while saving the score: ", err));
+}
+
+// retrieving 5 best scores from the backend
+function fetchTopScores() {
+    fetch("http://localhost:3000/scores")
+        .then(res => res.json())
+        .then(topScores => {
+            console.log("Top Scores: ", topScores);
+            scoreBoardList.innerHTML = topScores
+                .map((s, i) => `<li>${i+1}: <bold>${s.score}</bold></li>`)
+                .join("")})
+        .catch(err => console.error("Error occured while retrieving top scores: ", err));
+        ;
+}
+
 
 function gameLoop() {
     if (!gameOver) {
@@ -357,6 +405,7 @@ function startGame() {
     items = [];
     score = 0;
     gameOver = false;
+    fetchTopScores();
 
     bgMusic.currentTime = 0;
     bgMusic.volume = 0.2;
@@ -368,5 +417,6 @@ function startGame() {
 }
 
 window.onload = function() {
+    fetchTopScores();
     draw();
 }
