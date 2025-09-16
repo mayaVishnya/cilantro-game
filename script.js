@@ -36,7 +36,7 @@ function resizeCanvas() {
     if (window.innerWidth < 1080) {
         scoreboard.style.display = "none";
     } else {
-        scoreboard.style.display = "flex";
+        scoreboard.style.display = "none";
         const scoresTarget = window.innerWidth * (1 / 8);
         scale = scoresTarget / GAME_WIDTH;
         scoreBoardList.style.width = (GAME_WIDTH * scale) - 10 + "px";
@@ -402,7 +402,7 @@ function startGame() {
     birdInterval = null;
     player.x = 250;
     player.y = 315;
-    items = [];
+    foodItems = [];
     score = 0;
     gameOver = false;
     fetchTopScores();
